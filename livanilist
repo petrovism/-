@@ -18,11 +18,14 @@ return {
 
     whitelist = {
         "ComradeAlexeiP",
+        "minoh098twin4",
+        "YvozyToast",
+        "Sweat_FriendD",
+        "AmbassadorNakazaYuki",
+        "piggyfan727227",
+        "SWATKoi867",
+        "twinkoreal",
         "Muffinbeman2",
-        "ComradeZhukovP",
-        "ComradeDenisV",
-        "SSG_NATION90",
-        "Phoenixmplooo",
     },
 
     blacklist = {
