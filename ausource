@@ -2,13 +2,13 @@
 https://discord.gg/7fDasxV2Ht
 enjoy auto building
 i used ai for help, no hate
-                                                                                    
+
   :::.      .,-:::::/   :::.    :::::::..       .::    .   .::::::.    :::::::..  .,::::::  
   ;;`;;   ,;;-'````'    ;;`;;   ;;;;``;;;;      ';;,  ;;  ;;;' ;;`;;   ;;;;``;;;; ;;;;''''  
  ,[[ '[[, [[[   [[[[[[/,[[ '[[,  [[[,/[[['       '[[, [[, [[' ,[[ '[[,  [[[,/[[['  [[cccc   
 c$$$cc$$$c"$$c.    "$$c$$$cc$$$c $$$$$$c           Y$c$$$c$P c$$$cc$$$c $$$$$$c    $$""""   
  888   888,`Y8bo,,,o88o888   888,888b "88bo,        "88"888   888   888,888b "88bo,888oo,__ 
- YMM   ""`   `'YMUP"YMMYMM   ""` MMMM   "W"          "M "M"   YMM   ""` MMMM   "W" """"YUMMM                                                      
+ YMM   ""`   `'YMUP"YMMYMM   ""` MMMM   "W"          "M "M"   YMM   ""` MMMM   "W" """"YUMMM
 
 ]]
 
@@ -177,11 +177,8 @@ local function getNewestBrick()
 	return bricks[#bricks]
 end
 
-
-
-
 -- ============================================================================
--- DElETE BLOCK
+-- DELETE BLOCK
 -- ============================================================================
 local function deleteBrick(brick)
 	local deleteTool = nil
@@ -212,12 +209,6 @@ local function deleteBrick(brick)
 
 	return true
 end
-
-
-
-
-
-
 
 -- ============================================================================
 -- NOCLIP
@@ -408,7 +399,6 @@ local function paintBlock(brick, color, material)
 	return true
 end
 
-
 -- ============================================================================
 -- SPRAY BLOCK
 -- ============================================================================
@@ -435,9 +425,6 @@ local function sprayBlock(brick, face, text, colorHex)
 
 	return true
 end
-
-
-
 
 -- ============================================================================
 -- SHAPE TOOL RESIZING
@@ -838,7 +825,7 @@ local function placeBlock(blockData, buildTools)
 		task.wait(0.02)
 
 		paintBlock(newBrick, blockData.color, blockData.material)
-		
+
 		-- SPRAY IF ANY
 		if blockData.sprays and #blockData.sprays > 0 then
 			task.wait(0.03)
@@ -868,28 +855,18 @@ local function placeBlock(blockData, buildTools)
 		return true
 	end
 end
--- ============================================================================
--- NEAREST UNBUILT BLOCK SELECTOR
--- ============================================================================
-local function getNearestUnbuiltIndex(blocks, done)
-	local char = LocalPlayer.Character
-	local hrp = char and char:FindFirstChild("HumanoidRootPart")
-	if not hrp then return nil end
 
-	local bestIndex = nil
-	local bestDist = math.huge
-
-	for i, blockData in ipairs(blocks) do
+-- ============================================================================
+-- DIAGONAL BLOCK SELECTOR (right + up at the same time)
+-- Blocks are pre-sorted in main(), so this just returns the next unbuilt one.
+-- ============================================================================
+local function getNextDiagonalIndex(blocks, done)
+	for i = 1, #blocks do
 		if not done[i] then
-			local dist = (hrp.Position - blockData.centerPos).Magnitude
-			if dist < bestDist then
-				bestDist = dist
-				bestIndex = i
-			end
+			return i
 		end
 	end
-
-	return bestIndex
+	return nil
 end
 
 -- ============================================================================
@@ -902,6 +879,16 @@ local function main()
 	if #blocks == 0 then
 		return
 	end
+
+	-- Sweep diagonally: lowest (X + Y) first, so it moves right and up together.
+	-- Swap Y for Z in the key if you want the diagonal across the ground instead.
+	table.sort(blocks, function(a, b)
+		local ka = a.centerPos.X + a.centerPos.Y
+		local kb = b.centerPos.X + b.centerPos.Y
+		if ka ~= kb then return ka < kb end
+		if a.centerPos.X ~= b.centerPos.X then return a.centerPos.X < b.centerPos.X end
+		return a.centerPos.Z < b.centerPos.Z
+	end)
 
 	local previewFolder = createPreviews(blocks)
 
@@ -950,11 +937,6 @@ local function main()
 			return
 		end
 
-
-
-
-
-
 		-- Check if there's a block that needs fixing from LAST iteration
 		if needsFixing then
 			print("Fixing incorrect block before continuing...")
@@ -981,11 +963,7 @@ local function main()
 			task.wait(0.05)
 		end
 
-
-
-
-
-		local i = getNearestUnbuiltIndex(blocks, done)
+		local i = getNextDiagonalIndex(blocks, done)
 		if not i then break end
 
 		local blockData = blocks[i]
@@ -1021,7 +999,7 @@ local function main()
 
 		unlockPosition()
 		task.wait(0.05)
-	end  -- This is line 960, the end of the while loop
+	end
 
 	-- Fix any remaining failed block after main loop ends
 	if needsFixing then
@@ -1043,7 +1021,7 @@ local function main()
 		end
 	end
 
-	cleanup(previewFolder)  -- This stays here
+	cleanup(previewFolder)
 end
 
 main()
